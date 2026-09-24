@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AstroCode — Projectile Motion Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink:#241b3a; --muted:#6c6280;
+      --plum-1:#221333; --plum-2:#3d1f63;
+      --violet:#7c3aed; --violet-deep:#5b21b6; --violet-mid:#8b5cf6;
+      --violet-soft:#f1eafe; --violet-line:#ded0f8;
+      --panel:#ffffff; --soft:#f8f5ff;
+      --good:#15803d; --good-bg:#e3faea; --good-line:#8fe3ac;
+      --bad:#b91c1c; --bad-bg:#fdeaea; --bad-line:#f3a8a8;
+      --warn-bg:#fff7df; --warn-line:#f4d985; --warn-ink:#6b5b31;
+    }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:'Inter', ui-sans-serif, system-ui, sans-serif; color:var(--ink); background:linear-gradient(135deg,#f7f2ff 0%,#fbf9ff 45%,#f3ecff 100%); }
+    h1,h2,h3,h4,.brand,.step,.home-kicker { font-family:'Space Grotesk','Inter',sans-serif; }
+    header { background:linear-gradient(120deg,var(--plum-1),var(--plum-2)); color:white; padding:21px max(24px, calc((100% - 1240px)/2)); display:flex; align-items:center; justify-content:space-between; gap:20px; box-shadow:0 4px 18px rgba(45,15,70,.35); }
+    .brand { display:flex; gap:12px; align-items:center; font-size:24px; font-weight:700; letter-spacing:-.6px; }
+    .tag { font-size:12.5px;color:#dcc9fb;font-weight:500;letter-spacing:0; }
+    .teacher { border:1px solid #6f4f9c; border-radius:999px;padding:8px 13px;color:#ecdffb;font-size:13px; }
+    main { max-width:1240px; margin:27px auto 48px; padding:0 20px; }
+
+    /* ---------- home / learn landing ---------- */
+    .home{padding:8px 0 20px}
+    .hero-banner{max-width:900px;margin:0 auto;text-align:center;background:#fff;border:1px solid var(--violet-line);border-radius:22px;padding:52px 48px;box-shadow:0 16px 35px rgba(90,40,150,.10);position:relative;overflow:hidden}
+    .hero-banner:before,.hero-banner:after{content:'';position:absolute;border:1px solid #e2d3fb;border-radius:50%;width:330px;height:330px;opacity:.6}
+    .hero-banner:before{top:-250px;left:-200px}.hero-banner:after{bottom:-270px;right:-160px}
+    .home-kicker{color:var(--violet);font-size:12px;text-transform:uppercase;letter-spacing:1.4px;font-weight:700;position:relative}
+    .hero-banner h1{font-size:36px;margin:13px 0 15px;position:relative;letter-spacing:-.8px}
+    .hero-banner p{max-width:660px;margin:0 auto;color:#5c5470;line-height:1.7;font-size:15.5px;position:relative}
+    .hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:24px;position:relative}
+    .begin{border:0;border-radius:10px;background:linear-gradient(135deg,var(--violet),var(--violet-deep));color:#fff;font:700 15px 'Inter';padding:13px 21px;cursor:pointer;box-shadow:0 7px 14px rgba(124,58,237,.32)}
+    .begin:hover{filter:brightness(1.08)}
+    .begin.ghost{background:#fff;border:1px solid var(--violet-line);color:var(--violet-deep);box-shadow:none}
+    .begin.ghost:hover{background:var(--violet-soft)}
+    .stat-strip{display:flex;gap:30px;justify-content:center;margin-top:28px;flex-wrap:wrap;position:relative}
+    .stat{text-align:center}
+    .stat strong{display:block;font-size:25px;color:#4c1d95}
+    .stat span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+
+    .learn-grid{display:grid;grid-template-columns:1fr 300px;gap:24px;margin-top:34px;text-align:left}
+    .learn-main{display:flex;flex-direction:column;gap:28px}
+    .section-block{background:#fff;border:1px solid var(--violet-line);border-radius:18px;padding:22px 24px;box-shadow:0 10px 28px rgba(90,40,150,.06)}
+    .section-block h2{font-size:19px;margin:0 0 4px}
+    .section-sub{font-size:12.5px;color:var(--muted);margin:0 0 14px}
+
+    .concept-card-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .flip-card{perspective:1000px;height:145px;cursor:pointer}
+    .flip-inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+    .flip-card.flipped .flip-inner{transform:rotateY(180deg)}
+    .flip-front,.flip-back{position:absolute;inset:0;backface-visibility:hidden;border-radius:14px;padding:14px;display:flex;flex-direction:column;justify-content:center}
+    .flip-front{background:linear-gradient(135deg,var(--violet),var(--violet-deep));color:#fff}
+    .flip-back{background:var(--soft);border:1px solid var(--violet-line);transform:rotateY(180deg)}
+    .flip-front h4{margin:0 0 4px;font-size:14px}
+    .flip-front span{font-size:10.5px;opacity:.85}
+    .flip-back p{margin:0;font-size:11.5px;line-height:1.5;color:#4a4160}
+
+    .equation-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .equation-card{background:var(--soft);border:1px solid var(--violet-line);border-radius:12px;padding:14px}
+    .equation-card code{display:block;font-size:16px;font-weight:800;color:#4c1d95;margin-bottom:6px}
+    .equation-card span{font-size:11.5px;color:var(--muted)}
+    .equation-note{font-size:12px;color:var(--muted);margin:12px 2px 0;line-height:1.55}
+
+    .split-panel{display:grid;grid-template-columns:190px 1fr;gap:20px;align-items:center;background:var(--soft);border:1px solid var(--violet-line);border-radius:14px;padding:18px}
+    .split-diagram{width:100%;height:auto}
+    .split-text p{font-size:13px;line-height:1.65;color:#4a4160;margin:0 0 10px}
+    .split-text p:last-child{margin-bottom:0}
+    .split-text code{background:var(--violet-soft);color:#5b21b6;padding:2px 5px;border-radius:5px;font-weight:700}
+
+    .side-card{background:#fff;border:1px solid var(--violet-line);border-radius:16px;padding:18px;margin-bottom:18px;box-shadow:0 10px 28px rgba(90,40,150,.06)}
+    .side-card h3{margin:0 0 4px;font-size:15px}
+    .case-quicklink{display:block;width:100%;text-align:left;border:1px solid var(--violet-line);background:#fff;border-radius:10px;padding:10px 12px;margin-top:9px;font:700 12.5px 'Inter';color:var(--ink);cursor:pointer}
+    .case-quicklink:hover{background:var(--violet-soft);border-color:#b794f6}
+    .accordion{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+    .acc-item{width:100%;text-align:left;border:1px solid var(--violet-line);background:#fff;border-radius:10px;padding:10px 12px;font:700 12px 'Inter';color:var(--ink);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px}
+    .acc-item.open{background:var(--violet-soft);border-radius:10px 10px 0 0}
+    .acc-body{display:none;font-size:11.5px;color:#4a4160;line-height:1.6;padding:2px 12px 12px;background:var(--violet-soft);border-radius:0 0 10px 10px;margin-top:-8px}
+    .acc-body.show{display:block}
+
+    /* ---------- case chooser ---------- */
+    .choose-screen{background:#fff;border:1px solid var(--violet-line);border-radius:20px;padding:34px;box-shadow:0 10px 28px rgba(90,40,150,.08)}
+    .choose-heading{text-align:center;max-width:650px;margin:0 auto 27px}
+    .choose-heading h2{font-size:26px;margin:0 0 8px}
+    .choose-heading p{color:var(--muted);margin:0;font-size:15px}
+    .case-gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .case-card{cursor:pointer;background:#fff;border:1px solid var(--violet-line);border-radius:15px;overflow:hidden;text-align:left;padding:0;transition:.2s;color:var(--ink);font:inherit}
+    .case-card:hover{border-color:#b794f6;transform:translateY(-3px);box-shadow:0 13px 24px rgba(124,58,237,.16)}
+    .case-card .diagram{height:170px;background:#f8f4ff;display:block;width:100%}
+    .case-card .copy{padding:15px}
+    .case-card h3{font-size:16px;margin:0 0 6px}
+    .case-card p{font-size:13px;color:var(--muted);line-height:1.42;margin:0}
+    .case-number{display:inline-block;color:var(--violet);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px}
+
+    /* ---------- lab ---------- */
+    .layout { display:grid; grid-template-columns:326px 1fr; gap:20px; }
+    .panel { background:var(--panel); border:1px solid var(--violet-line); border-radius:18px; box-shadow:0 10px 28px rgba(90,40,150,.08); }
+    .controls { padding:21px; }
+    .step { color:var(--violet); font-size:12px;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin:2px 0 11px; }
+    h2 {font-size:17px;margin:0 0 13px;letter-spacing:-.2px}
+    .selected-case{background:var(--violet-soft);border:1px solid var(--violet-line);border-radius:10px;padding:10px 11px;color:var(--violet-deep);font-size:13px;font-weight:700}
+    .case-reference{margin:10px 0 3px;border:1px solid var(--violet-line);border-radius:10px;overflow:hidden;background:var(--soft)}
+    .case-reference svg{display:block;width:100%;height:120px}
+    .change-case{background:none;border:0;color:var(--violet);font:700 12px 'Inter';padding:5px 0;cursor:pointer;text-decoration:underline}
+    .divider{height:1px;background:var(--violet-line);margin:20px 0}
+    .mode-toggle{display:flex;gap:4px;background:var(--soft);border:1px solid var(--violet-line);border-radius:999px;padding:4px}
+    .mode-toggle button{flex:1;border:0;background:transparent;padding:9px 6px;border-radius:999px;font:700 12px 'Inter';color:var(--muted);cursor:pointer;transition:.15s}
+    .mode-toggle button.active{background:linear-gradient(135deg,var(--violet),var(--violet-deep));color:#fff;box-shadow:0 4px 10px rgba(124,58,237,.3)}
+    .mode-toggle.small button{padding:7px 4px;font-size:11px}
+    .mode-note{font-size:11.5px;color:var(--muted);margin:9px 2px 0;line-height:1.5}
+    .planet-row{display:flex;gap:10px;align-items:center;background:var(--soft);border-radius:12px;padding:10px 11px;margin-bottom:15px}
+    .planet-icon{font-size:28px}
+    .planet-row small{display:block;color:var(--muted);margin-top:2px}
+    .planet-row strong{font-size:14px}
+    select,input {font:inherit;border:1px solid #ddd0f7;border-radius:9px;padding:10px;color:var(--ink);background:white;}
+    select{width:100%;margin:7px 0 5px}
+    label{display:block;font-size:12px;font-weight:700;color:#4d4460;margin:11px 0 0}
+    .input-line { position:relative; } input{width:100%;margin-top:6px;font-weight:600}
+    .unit{position:absolute;right:11px;bottom:11px;color:var(--muted);font-size:12px}
+    .run{width:100%;border:0;border-radius:10px;padding:12px;background:linear-gradient(135deg,var(--violet),var(--violet-deep));color:#fff;font:700 14px 'Inter';margin-top:20px;cursor:pointer;box-shadow:0 6px 12px rgba(124,58,237,.32)}
+    .run:hover{filter:brightness(1.07)}
+    .given-chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 2px}
+    .given-chip{background:var(--violet-soft);color:var(--violet-deep);border-radius:999px;padding:6px 10px;font-size:12px;font-weight:700;white-space:nowrap}
+    .new-q-btn{width:100%;border:1px solid var(--violet-line);background:#fff;color:var(--violet-deep);border-radius:10px;padding:10px;font:700 13px 'Inter';cursor:pointer;margin-top:12px}
+    .new-q-btn:hover{background:var(--violet-soft)}
+    .bank-note{font-size:11px;color:var(--muted);margin:10px 2px 0;line-height:1.5}
+    .workspace{display:grid;grid-template-rows:auto auto;gap:20px}
+    .simulation{overflow:hidden;min-height:373px;position:relative;background:radial-gradient(ellipse at 70% 10%,#4c2e79,#1c1030 67%);}
+    .simhead{padding:19px 22px 0;display:flex;justify-content:space-between;align-items:start;color:#fff;gap:14px}
+    .simhead h2{margin:0;font-size:18px}
+    .simhead p{margin:4px 0 0;font-size:12px;color:#cdbdee}
+    .legend{font-size:12px;color:#e6d9fb;display:flex;gap:13px;white-space:nowrap}
+    .legend i{width:9px;height:9px;border-radius:50%;display:inline-block;background:#fff;border:2px solid var(--violet-mid);margin-right:4px}
+    .legend i.g{background:var(--violet-soft);border:2px solid #b294e8}
+    canvas {height:276px;width:100%;display:block}
+    .sim-note{position:absolute;right:22px;bottom:17px;color:#ece3fb;font-size:12px;background:rgba(30,15,50,.68);padding:7px 10px;border-radius:8px}
+    .results{padding:20px}
+    .result-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:12px}
+    .result-head h2{margin:0}
+    .chip{background:var(--violet-soft);color:var(--violet-deep);border-radius:999px;font-size:11px;font-weight:700;padding:6px 9px;white-space:nowrap}
+    .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .metric{background:var(--soft);border:1px solid var(--violet-line);border-radius:12px;padding:14px;text-align:left;cursor:pointer;font:inherit;color:inherit;transition:.16s}
+    .metric:hover,.metric:focus{border-color:#b794f6;background:var(--violet-soft);outline:none;transform:translateY(-1px)}
+    .metric .value{font-size:24px;font-weight:800;letter-spacing:-.7px;color:#4c1d95}
+    .metric .name{font-size:12px;color:#6b6280;margin-top:3px}
+    .metric sup{font-size:13px}
+    .result-detail{display:none;margin-top:15px;background:var(--soft);border:1px solid var(--violet-line);border-radius:11px;padding:15px 16px;color:#4a4160;font-size:13px;line-height:1.75}
+    .result-detail.show{display:block}
+    .result-detail h3{font-size:14px;color:#5b21b6;margin:0 0 7px}
+    .result-detail code{background:var(--violet-soft);color:#5b21b6;border-radius:5px;padding:2px 5px;font-weight:700}
+    .working{margin-top:17px;border:1px solid var(--violet-line);border-radius:11px;overflow:hidden}
+    .work-toggle{width:100%;border:0;background:#fff;text-align:left;padding:12px 14px;color:#5b21b6;font:700 13px 'Inter';cursor:pointer;display:flex;justify-content:space-between}
+    .formula{display:none;background:var(--soft);border-top:1px solid var(--violet-line);padding:13px 14px;color:#4a4160;font-size:13px;line-height:1.75}
+    .formula.show{display:block}
+    .formula code{background:var(--violet-soft);color:#5b21b6;border-radius:5px;padding:2px 5px;font-weight:700}
+    .scenario-text{font-size:14.5px;line-height:1.65;color:var(--ink);background:var(--soft);border:1px solid var(--violet-line);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+    .diff-pill{display:inline-block;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;margin-right:8px;vertical-align:middle}
+    .diff-easy{background:#e3faea;color:#15803d}
+    .diff-medium{background:var(--violet-soft);color:var(--violet-deep)}
+    .diff-hard{background:#fdeaea;color:#b91c1c}
+    .answer-grid{display:flex;flex-direction:column;gap:10px}
+    .answer-row{display:grid;grid-template-columns:1fr 128px 28px;gap:10px;align-items:center;background:var(--soft);border:1px solid var(--violet-line);border-radius:12px;padding:11px 13px;transition:.15s}
+    .answer-row.correct{border-color:var(--good-line);background:var(--good-bg)}
+    .answer-row.incorrect{border-color:var(--bad-line);background:var(--bad-bg)}
+    .answer-row.revealed{border-color:var(--violet-line);background:#fff}
+    .answer-label{font-size:13px;font-weight:700;color:var(--ink)}
+    .answer-input{position:relative}
+    .answer-input input{width:100%;padding:8px 38px 8px 8px;border-radius:8px;border:1px solid #ddd0f7;font-weight:700}
+    .answer-input input:disabled{background:#fff;opacity:.85}
+    .answer-input span{position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:10.5px;color:var(--muted)}
+    .answer-status{font-size:17px;text-align:center;cursor:pointer}
+    .answer-reveal{grid-column:1/-1;font-size:12.5px;color:#4a4160;background:#fff;border-top:1px dashed var(--violet-line);padding-top:9px;margin-top:5px;line-height:1.65;display:none}
+    .answer-reveal.show{display:block}
+    .answer-reveal code{background:var(--violet-soft);color:#5b21b6;border-radius:5px;padding:2px 5px;font-weight:700}
+    .answer-reveal b{color:#4c1d95}
+    .practice-actions{display:flex;align-items:center;gap:14px;margin-top:16px;flex-wrap:wrap}
+    .check-btn{border:0;border-radius:10px;padding:11px 18px;background:linear-gradient(135deg,var(--violet),var(--violet-deep));color:#fff;font:700 14px 'Inter';cursor:pointer;box-shadow:0 6px 12px rgba(124,58,237,.3)}
+    .check-btn:disabled{opacity:.45;cursor:default;box-shadow:none}
+    .attempts-label{font-size:12.5px;color:var(--muted);font-weight:700}
+    .practice-feedback{margin-top:12px;font-size:13.5px;font-weight:700;color:var(--violet-deep);min-height:18px}
+    .why{margin-top:20px;padding:17px 19px;background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:14px;display:flex;gap:12px;align-items:start}
+    .why b{font-size:14px}
+    .why p{margin:3px 0 0;font-size:13px;color:var(--warn-ink);line-height:1.5}
+    .bulb{font-size:24px}
+    @media(max-width:900px){
+      .learn-grid{grid-template-columns:1fr}
+      .concept-card-grid{grid-template-columns:repeat(2,1fr)}
+      .split-panel{grid-template-columns:1fr}
+    }
+    @media(max-width:800px){
+      header{padding:17px 20px}.teacher{display:none}.layout{grid-template-columns:1fr}
+      .metrics{grid-template-columns:1fr}.choose-screen{padding:22px}.case-gallery{grid-template-columns:1fr}
+      .case-card .diagram{height:135px}.answer-row{grid-template-columns:1fr}.answer-status{text-align:left}
+      .hero-banner{padding:34px 22px}.equation-grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <header><div class="brand"><div>Welcome to AstroCode <span class="tag">Projectile Motion Learning Tool</span></div></div><div class="teacher">Designed for CAPE Unit 1 Physics</div></header>
+  <main>
+    <section class="home" id="home">
+      <div class="hero-banner">
+        <div class="home-kicker">CAPE / A-Level Physics · Unit 1, Module 1: Mechanics</div>
+        <h1>Master projectile motion — the CAPE way.</h1>
+        <p>Projectile motion is just linear motion happening in two directions at once. Below is the theory your notes and the syllabus cover, the mistakes CXC examiners see most often, and a lab where you can explore freely or test yourself with real practice questions.</p>
+        <div class="hero-actions">
+          <button class="begin" id="begin">Choose a motion case →</button>
+          <button class="begin ghost" id="jumpPractice">Jump straight to practice questions</button>
+        </div>
+        <div class="stat-strip">
+          <div class="stat"><strong>3</strong><span>motion cases</span></div>
+          <div class="stat"><strong>12</strong><span>practice questions</span></div>
+          <div class="stat"><strong>3</strong><span>difficulty levels</span></div>
+        </div>
+      </div>
+
+      <div class="learn-grid">
+        <div class="learn-main">
+          <div class="section-block">
+            <h2>Get your key terms straight</h2>
+            <p class="section-sub">Tap a card to flip it.</p>
+            <div class="concept-card-grid">
+              <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+                <div class="flip-front"><h4>Distance vs Displacement</h4><span>tap to reveal</span></div>
+                <div class="flip-back"><p>Distance is the total path length covered — a scalar. Displacement is the straight-line change in position from start to finish, with a direction attached — a vector.</p></div>
+              </div></div>
+              <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+                <div class="flip-front"><h4>Speed vs Velocity</h4><span>tap to reveal</span></div>
+                <div class="flip-back"><p>Speed is distance covered per unit time — a scalar. Velocity is displacement per unit time — a vector, so it always comes with a direction attached.</p></div>
+              </div></div>
+              <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+                <div class="flip-front"><h4>Acceleration</h4><span>tap to reveal</span></div>
+                <div class="flip-back"><p>The rate of change of velocity, in m s⁻². An object accelerates whenever it speeds up, slows down, or changes direction — even at constant speed.</p></div>
+              </div></div>
+              <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+                <div class="flip-front"><h4>Vectors vs Scalars</h4><span>tap to reveal</span></div>
+                <div class="flip-back"><p>A scalar is fully described by size alone (mass, distance, speed). A vector needs size and direction (displacement, velocity, acceleration) — which is why sign convention matters so much here.</p></div>
+              </div></div>
+            </div>
+          </div>
+
+          <div class="section-block">
+            <h2>The four equations of motion</h2>
+            <p class="section-sub">Your toolkit for the vertical direction — and the horizontal one too, whenever there's an acceleration.</p>
+            <div class="equation-grid">
+              <div class="equation-card"><code>v = u + at</code><span>straight from the definition of acceleration</span></div>
+              <div class="equation-card"><code>s = ½(u + v)t</code><span>the area under a velocity–time graph</span></div>
+              <div class="equation-card"><code>s = ut + ½at²</code><span>substitute v from the first equation into the second</span></div>
+              <div class="equation-card"><code>v² = u² + 2as</code><span>eliminate t between the equations above</span></div>
+            </div>
+            <p class="equation-note">These only hold when acceleration is <b>constant</b> — exactly the situation once a projectile leaves your hand, since gravity alone acts on it from that point.</p>
+          </div>
+
+          <div class="section-block">
+            <h2>Why projectile motion "splits in two"</h2>
+            <div class="split-panel">
+              <svg class="split-diagram" viewBox="0 0 190 150" aria-label="Velocity resolved into horizontal and vertical components">
+                <line x1="20" y1="130" x2="170" y2="130" stroke="#c9b6f0" stroke-width="2"/>
+                <line x1="20" y1="130" x2="150" y2="30" stroke="#7c3aed" stroke-width="3"/>
+                <line x1="20" y1="130" x2="150" y2="130" stroke-dasharray="4 4" stroke="#8b5cf6" stroke-width="2"/>
+                <line x1="150" y1="130" x2="150" y2="30" stroke-dasharray="4 4" stroke="#8b5cf6" stroke-width="2"/>
+                <circle cx="20" cy="130" r="4" fill="#7c3aed"/>
+                <text x="78" y="145" fill="#4a4160" font-size="11">u cos θ</text>
+                <text x="155" y="85" fill="#4a4160" font-size="11">u sin θ</text>
+                <text x="60" y="70" fill="#5b21b6" font-size="11" font-weight="700">u</text>
+                <path d="M40 130 A20 20 0 0 1 33 113" fill="none" stroke="#8b5cf6" stroke-width="1.5"/>
+                <text x="42" y="118" fill="#5b21b6" font-size="10">θ</text>
+              </svg>
+              <div class="split-text">
+                <p><b>Horizontally:</b> nothing pushes or pulls the object (air resistance is ignored), so <code>uₓ = u cos θ</code> stays exactly the same all flight. That's ordinary constant-velocity motion: <code>x = uₓt</code>.</p>
+                <p><b>Vertically:</b> gravity is the only force, giving a constant acceleration <code>g</code>. Every equation above applies here, with <code>a = ±g</code> depending on the sign convention you pick.</p>
+                <p>Because neither direction affects the other, you solve for time using whichever direction gives you enough information, then reuse that same t elsewhere. Eliminating t between the two directions always leaves a quadratic in x — which is exactly why the path is a parabola.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="learn-side">
+          <div class="side-card">
+            <h3>Jump straight into a case</h3>
+            <button class="case-quicklink" data-case="same">🟣 Angled launch, same level</button>
+            <button class="case-quicklink" data-case="height">🟣 Angled launch from a height</button>
+            <button class="case-quicklink" data-case="horizontal">🟣 Horizontal launch from a height</button>
+          </div>
+          <div class="side-card">
+            <h3>What CAPE examiners flag most</h3>
+            <p class="section-sub">From the CXC Physics Unit 1 subject report</p>
+            <div class="accordion">
+              <button class="acc-item" onclick="toggleAcc(this)">Instantaneous vs average acceleration <span>⌄</span></button>
+              <div class="acc-body">Instantaneous acceleration is the gradient of the <i>tangent</i> to a velocity–time graph at that instant — not velocity divided by time, which only gives an average over an interval.</div>
+              <button class="acc-item" onclick="toggleAcc(this)">Forgetting the sign convention <span>⌄</span></button>
+              <div class="acc-body">Pick a positive direction and stick with it. If upward is positive, g stays negative for the whole flight — even on the way up, when velocity and acceleration point in opposite directions.</div>
+              <button class="acc-item" onclick="toggleAcc(this)">Assuming t↑ is always half the flight time <span>⌄</span></button>
+              <div class="acc-body">That shortcut only works when the projectile lands back at its launch height. Launched from a height, the up-time and down-time are different — you need to solve for total time separately.</div>
+              <button class="acc-item" onclick="toggleAcc(this)">Losing marks on units <span>⌄</span></button>
+              <div class="acc-body">Always read the units already printed on a graph's axes rather than assuming them, and never drop units from a final numeric answer.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="choose-screen" id="chooseScreen" hidden><div class="choose-heading"><h2>Which type of motion would you like to explore?</h2><p>Start by selecting the situation that matches your question.</p></div><div class="case-gallery">
+      <button class="case-card" data-case="same"><svg class="diagram" viewBox="0 0 300 170" aria-label="Angled launch returning to same height"><path d="M0 143H300" stroke="#8b7fa3" stroke-width="5"/><path d="M39 139 Q150 14 260 139" fill="none" stroke="#7c3aed" stroke-width="4" stroke-dasharray="7 5"/><circle cx="39" cy="139" r="8" fill="#7c3aed"/><path d="M42 131 L77 106" stroke="#7c3aed" stroke-width="3"/><text x="13" y="161" fill="#5c5470" font-size="12">launch</text><text x="225" y="161" fill="#5c5470" font-size="12">landing</text><text x="127" y="28" fill="#7c3aed" font-size="12">maximum height</text></svg><div class="copy"><span class="case-number">Case 1</span><h3>Angled launch</h3><p>The projectile lands at the same ground level from which it was launched.</p></div></button>
+      <button class="case-card" data-case="height"><svg class="diagram" viewBox="0 0 300 170" aria-label="Angled launch from a height"><path d="M0 143H300" stroke="#8b7fa3" stroke-width="5"/><path d="M38 76 L38 143" stroke="#a48fc9" stroke-width="6"/><path d="M41 74 Q158 -3 261 139" fill="none" stroke="#7c3aed" stroke-width="4" stroke-dasharray="7 5"/><circle cx="41" cy="74" r="8" fill="#7c3aed"/><path d="M45 68 L79 52" stroke="#7c3aed" stroke-width="3"/><text x="13" y="64" fill="#5c5470" font-size="12">height</text><text x="222" y="161" fill="#5c5470" font-size="12">landing</text><text x="147" y="27" fill="#7c3aed" font-size="12">maximum height</text></svg><div class="copy"><span class="case-number">Case 2</span><h3>Angled launch from a height</h3><p>The projectile begins above the ground, then lands below its launch point.</p></div></button>
+      <button class="case-card" data-case="horizontal"><svg class="diagram" viewBox="0 0 300 170" aria-label="Horizontal launch from a height"><path d="M0 143H300" stroke="#8b7fa3" stroke-width="5"/><path d="M39 56 L39 143" stroke="#a48fc9" stroke-width="6"/><path d="M43 57 Q167 58 262 139" fill="none" stroke="#7c3aed" stroke-width="4" stroke-dasharray="7 5"/><circle cx="43" cy="57" r="8" fill="#7c3aed"/><path d="M52 57 L91 57" stroke="#7c3aed" stroke-width="3"/><text x="13" y="47" fill="#5c5470" font-size="12">height</text><text x="206" y="161" fill="#5c5470" font-size="12">landing</text><text x="69" y="46" fill="#7c3aed" font-size="12">horizontal launch</text></svg><div class="copy"><span class="case-number">Case 3</span><h3>Horizontal launch</h3><p>The projectile has horizontal velocity only when it leaves the edge.</p></div></button>
+    </div></section>
+
+    <div class="layout" id="lab" hidden>
+      <aside class="panel controls">
+        <div class="step">1 — Your motion case</div><div class="selected-case" id="selectedCase">Angled launch — same ground level</div><div class="case-reference" id="caseDiagram"></div><button class="change-case" id="changeCase">← Choose a different case</button>
+        <div class="divider"></div><div class="step">2 — How do you want to work?</div>
+        <div class="mode-toggle" id="modeToggle"><button data-mode="explore" class="active">🔎 Explore freely</button><button data-mode="practice">📝 Practice a question</button></div>
+        <p class="mode-note" id="modeNote">Adjust the values yourself and see every result instantly.</p>
+
+        <div id="exploreControls">
+          <div class="divider"></div><div class="step">3 — Choose your planet</div>
+          <div class="planet-row"><span class="planet-icon" id="planetIcon">🌍</span><div><strong id="planetText">Earth</strong><small id="gravityText">g = 9.81 m s⁻²</small></div></div>
+          <select id="planet"><option value="9.81" data-icon="🌍">Earth</option><option value="3.70" data-icon="☿">Mercury</option><option value="8.87" data-icon="🟠">Venus</option><option value="3.71" data-icon="🔴">Mars</option><option value="24.79" data-icon="🟤">Jupiter</option><option value="10.44" data-icon="🪐">Saturn</option><option value="8.69" data-icon="🔵">Uranus</option><option value="11.15" data-icon="🔷">Neptune</option></select>
+          <div class="divider"></div><div class="step">4 — Set launch conditions</div>
+          <label>Launch velocity</label><div class="input-line"><input id="speed" type="number" value="25" min="0" step="1"><span class="unit">m s⁻¹</span></div>
+          <label id="angleLabel">Launch angle</label><div class="input-line" id="angleBox"><input id="angle" type="number" value="45" min="0" max="90"><span class="unit">°</span></div>
+          <label id="heightLabel">Initial height</label><div class="input-line" id="heightBox"><input id="height" type="number" value="0" min="0" step="1"><span class="unit">m</span></div>
+          <button class="run" id="run">▶ Run simulation</button>
+        </div>
+
+        <div id="practiceControls" hidden>
+          <div class="divider"></div><div class="step">3 — Difficulty</div>
+          <div class="mode-toggle small" id="difficultyToggle">
+            <button data-diff="all" class="active">All</button><button data-diff="easy">Easy</button><button data-diff="medium">Medium</button><button data-diff="hard">Hard</button>
+          </div>
+          <div class="divider"></div><div class="step">4 — Given in the question</div>
+          <div class="given-chips" id="givenChips"></div>
+          <button class="new-q-btn" id="newQuestionBtn">🔄 New question</button>
+          <button class="new-q-btn" id="replayBtn">↻ Replay the flight</button>
+          <p class="bank-note">12 questions across Easy / Medium / Hard, drawn without repeats. Practice questions use Earth's gravity, g = 9.8 m s⁻², matching your class notes.</p>
+        </div>
+      </aside>
+      <section class="workspace">
+        <div class="panel simulation"><div class="simhead"><div><h2 id="simTitle">Angled launch on Earth</h2><p id="simSub">The horizontal and vertical motions act independently.</p></div><div class="legend"><span><i></i> Projectile</span><span><i class="g"></i> Gravity</span></div></div><canvas id="scene"></canvas><div class="sim-note" id="simNote">Drag the sliders? <b>Change values and run again.</b></div></div>
+
+        <div class="panel results">
+          <div id="exploreResults">
+            <div class="result-head"><h2>Your results</h2><span class="chip">Click a result to learn how</span></div>
+            <div class="metrics">
+              <button class="metric" data-result="time"><div class="value" id="timeOut">3.60 <sup>s</sup></div><div class="name">Time of flight</div></button>
+              <button class="metric" data-result="range"><div class="value" id="rangeOut">63.7 <sup>m</sup></div><div class="name">Horizontal range</div></button>
+              <button class="metric" data-result="height"><div class="value" id="heightOut">15.9 <sup>m</sup></div><div class="name">Maximum height</div></button>
+              <button class="metric case-one-result" data-result="ux"><div class="value" id="uxOut">17.7 <sup>m s⁻¹</sup></div><div class="name">Initial horizontal velocity</div></button>
+              <button class="metric case-one-result" data-result="uy"><div class="value" id="uyOut">17.7 <sup>m s⁻¹</sup></div><div class="name">Initial vertical velocity</div></button>
+              <button class="metric case-one-result" data-result="peak"><div class="value" id="peakTimeOut">1.80 <sup>s</sup></div><div class="name">Time to maximum height</div></button>
+            </div>
+            <div class="result-detail" id="resultDetail"></div>
+            <div class="working"><button class="work-toggle" id="workToggle">Show all the physics working <span>⌄</span></button><div class="formula" id="formula"></div></div>
+          </div>
+
+          <div id="practiceResults" hidden>
+            <div class="result-head"><h2>Solve it yourself</h2><span class="chip">Type your answers below</span></div>
+            <div class="scenario-text" id="scenarioText"></div>
+            <div class="answer-grid" id="answerGrid"></div>
+            <div class="practice-actions">
+              <button class="check-btn" id="checkBtn">Check my answers</button>
+              <span class="attempts-label" id="attemptsLabel">3 attempts left</span>
+            </div>
+            <div class="practice-feedback" id="practiceFeedback"></div>
+            <button class="new-q-btn" id="nextQuestionBtn" hidden>Try another question →</button>
+          </div>
+        </div>
+      </section>
+    </div>
+    <div class="why"><span class="bulb">💡</span><div><b>Think like a physicist</b><p id="prompt">At maximum height, what happens to the vertical component of velocity? Does the horizontal component change?</p></div></div>
+  </main>
+  <script>
+    const q=s=>document.querySelector(s);
+    const state = { motion:'same', mode:'explore', running:false, start:0, practice:null, pendingPracticeIntent:false, practiceDifficulty:'all', practiceQueue:[], practiceQueueKey:null, practiceLastId:null };
+
+    function toggleAcc(btn){ btn.classList.toggle('open'); btn.nextElementSibling.classList.toggle('show'); }
+
+    /* ---------- shared physics ---------- */
+    function calcFrom(u,a,h,g,motion){
+      let rad=a*Math.PI/180, ux=u*Math.cos(rad), uy=motion==='horizontal'?0:u*Math.sin(rad), t,range,maxH;
+      if(motion==='same'){ t=2*uy/g; range=ux*t; maxH=uy*uy/(2*g); }
+      else { t=(uy+Math.sqrt(uy*uy+2*g*h))/g; range=ux*t; maxH=h+uy*uy/(2*g); }
+      let peakT=uy/g;
+      let out={u,a,h,g,rad,ux,uy,t,range,maxH,peakT};
+      if(motion==='horizontal'){ let vyI=g*t; out.vyImpact=vyI; out.impactSpeed=Math.sqrt(ux*ux+vyI*vyI); out.impactAngle=Math.atan2(vyI,ux)*180/Math.PI; }
+      return out;
+    }
+    function vals(){return {u:Math.max(0,+q('#speed').value||0), a:+q('#angle').value||0, h:Math.max(0,+q('#height').value||0), g:+q('#planet').value};}
+    function calculate(){ let v=vals(); return calcFrom(v.u,v.a,v.h,v.g,state.motion); }
+    function currentData(){ return (state.mode==='practice' && state.practice) ? calcFrom(state.practice.scenario.u,state.practice.scenario.a,state.practice.scenario.h,state.practice.scenario.g,state.motion) : calculate(); }
+
+    /* ---------- explore mode ---------- */
+    function explain(result){let d=calculate(), detail=q('#resultDetail'), title='', body='';
+      if(result==='ux'){title='Initial horizontal velocity';body=`The launch velocity is resolved horizontally using <code>uₓ = u cos θ</code>.<br><code>uₓ = ${d.u} cos ${d.a}° = ${d.ux.toFixed(2)} m s⁻¹</code>`;}
+      if(result==='uy'){title='Initial vertical velocity';body=`The launch velocity is resolved vertically using <code>uᵧ = u sin θ</code>.<br><code>uᵧ = ${d.u} sin ${d.a}° = ${d.uy.toFixed(2)} m s⁻¹</code>`;}
+      if(result==='peak'){title='Time to maximum height';body=`At maximum height, the vertical velocity is zero. Use <code>v = uᵧ − gt</code>.<br><code>0 = ${d.uy.toFixed(2)} − ${d.g}t</code><br><code>t = uᵧ/g = ${d.uy.toFixed(2)}/${d.g} = ${(d.uy/d.g).toFixed(2)} s</code>`;}
+      if(result==='time'){title='Time of flight';body=state.motion==='same'?`The projectile returns to its launch height, so its upward and downward travel times are equal.<br><code>t = 2uᵧ/g = 2(${d.uy.toFixed(2)})/${d.g} = ${d.t.toFixed(2)} s</code>`:state.motion==='horizontal'?`The initial vertical velocity is zero, so use vertical displacement.<br><code>h = ½gt²</code><br><code>t = √(2h/g) = √(2 × ${d.h}/${d.g}) = ${d.t.toFixed(2)} s</code>`:`Use vertical displacement from launch point to ground.<br><code>0 = h + uᵧt − ½gt²</code><br><code>0 = ${d.h} + ${d.uy.toFixed(2)}t − ½(${d.g})t²</code><br>Solving gives <code>t = ${d.t.toFixed(2)} s</code>.`;}
+      if(result==='range'){title='Horizontal range';body=`Horizontal velocity stays constant because air resistance is ignored.<br><code>R = uₓt</code><br><code>R = ${d.ux.toFixed(2)} × ${d.t.toFixed(2)} = ${d.range.toFixed(1)} m</code>`;}
+      if(result==='height'){title='Maximum height';body=state.motion==='horizontal'?`A horizontal launch has no initial upward velocity, so its greatest height is its starting height.<br><code>maximum height = ${d.h.toFixed(1)} m</code>`:state.motion==='same'?`At the highest point, vertical velocity is zero. Use <code>v² = uᵧ² − 2gH</code>.<br><code>H = uᵧ²/(2g) = ${d.uy.toFixed(2)}²/(2 × ${d.g}) = ${d.maxH.toFixed(1)} m</code>`:`First find height gained above the launch point: <code>uᵧ²/(2g)</code>.<br><code>height = h + uᵧ²/(2g)</code><br><code>${d.h} + ${d.uy.toFixed(2)}²/(2 × ${d.g}) = ${d.maxH.toFixed(1)} m</code>`;}
+      let wasOpen=detail.classList.contains('show')&&detail.dataset.result===result;detail.dataset.result=result;detail.innerHTML=`<h3>How was this calculated?</h3>${body}`;detail.classList.toggle('show',!wasOpen);}
+    function output(){let d=calculate(), planet=q('#planet').selectedOptions[0].text; q('#timeOut').innerHTML=`${d.t.toFixed(2)} <sup>s</sup>`;q('#rangeOut').innerHTML=`${d.range.toFixed(1)} <sup>m</sup>`;q('#heightOut').innerHTML=`${d.maxH.toFixed(1)} <sup>m</sup>`;q('#uxOut').innerHTML=`${d.ux.toFixed(2)} <sup>m s⁻¹</sup>`;q('#uyOut').innerHTML=`${d.uy.toFixed(2)} <sup>m s⁻¹</sup>`;q('#peakTimeOut').innerHTML=`${(d.uy/d.g).toFixed(2)} <sup>s</sup>`;document.querySelectorAll('.case-one-result').forEach(card=>card.hidden=state.motion!=='same');q('#resultDetail').classList.remove('show');q('#simTitle').textContent=`${state.motion==='horizontal'?'Horizontal': 'Angled'} launch on ${planet}`;q('#simSub').textContent=state.motion==='horizontal'?'The launch velocity is entirely horizontal.':'The horizontal and vertical motions act independently.';
+      let work=state.motion==='same'?`<b>1. Resolve the launch velocity</b><br><code>uᵧ = u sin θ = ${d.u} sin ${d.a}° = ${d.uy.toFixed(2)} m s⁻¹</code><br><b>2. Find the time of flight</b><br><code>t = 2uᵧ / g = ${d.t.toFixed(2)} s</code><br><b>3. Find the range</b><br><code>R = uₓt = ${d.range.toFixed(1)} m</code>`: state.motion==='horizontal'?`<b>1. Vertical motion determines the time</b><br><code>h = ½gt² → t = √(2h/g) = ${d.t.toFixed(2)} s</code><br><b>2. Horizontal motion is constant speed</b><br><code>R = ut = ${d.u} × ${d.t.toFixed(2)} = ${d.range.toFixed(1)} m</code>`:`<b>1. Resolve vertical velocity</b><br><code>uᵧ = u sin θ = ${d.uy.toFixed(2)} m s⁻¹</code><br><b>2. Use vertical displacement</b><br><code>0 = h + uᵧt − ½gt²</code><br><code>t = ${d.t.toFixed(2)} s; R = uₓt = ${d.range.toFixed(1)} m</code>`;q('#formula').innerHTML=work; draw(0);}
+
+    /* ---------- shared canvas ---------- */
+    function draw(progress){const c=q('#scene'), ctx=c.getContext('2d'), r=c.getBoundingClientRect(), ratio=devicePixelRatio||1;c.width=r.width*ratio;c.height=r.height*ratio;ctx.scale(ratio,ratio);let W=r.width,H=r.height,d=currentData(), pad=40, maxX=Math.max(d.range,1), maxY=Math.max(d.maxH,1), sx=(W-pad*2)/maxX, sy=(H-55)/maxY, ground=H-31;
+      ctx.clearRect(0,0,W,H);for(let i=0;i<46;i++){let x=(i*89)%W,y=(i*47)%210+6;ctx.fillStyle='#ddd0f7';ctx.globalAlpha=.55;ctx.fillRect(x,y,1.5,1.5)}ctx.globalAlpha=1;
+      ctx.strokeStyle='#c4b5fd';ctx.lineWidth=2;ctx.setLineDash([5,6]);ctx.beginPath();for(let i=0;i<=100;i++){let t=d.t*i/100,x=d.ux*t,y=(d.h+d.uy*t-.5*d.g*t*t);let px=pad+x*sx,py=ground-y*sy;i?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#5a4a78';ctx.fillRect(0,ground,W,4);ctx.fillStyle='#4a4160';ctx.font='12px Inter';ctx.fillText('ground level',W-98,ground+19);
+      let t=d.t*Math.min(progress,1), x=pad+d.ux*t*sx,y=ground-(d.h+d.uy*t-.5*d.g*t*t)*sy;ctx.beginPath();ctx.arc(x,y,10,0,Math.PI*2);ctx.fillStyle='#ffffff';ctx.shadowColor='#b794f6';ctx.shadowBlur=18;ctx.fill();ctx.shadowBlur=0;ctx.strokeStyle='#8b5cf6';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle='#fff';ctx.font='700 12px Inter';ctx.fillText('projectile',Math.min(x+15,W-75),Math.max(y-13,25));
+      ctx.strokeStyle='#c4b5fd';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(pad,ground-4);ctx.lineTo(pad,ground-40);ctx.stroke();ctx.fillStyle='#ece3fb';ctx.font='12px Inter';ctx.fillText('g',pad+7,ground-30);
+    }
+    function animate(ts){if(!state.start)state.start=ts;let p=Math.min((ts-state.start)/2600,1);draw(p);if(p<1&&state.running)requestAnimationFrame(animate);else state.running=false;}
+    function playAnimation(){state.running=true;state.start=0;requestAnimationFrame(animate);}
+
+    /* ---------- practice mode: curated question bank ---------- */
+    const PART_META = {
+      t:{label:'Time of flight', unit:'s', type:'time'},
+      range:{label:'Horizontal range', unit:'m', type:'dist'},
+      maxH:{label:'Maximum height', unit:'m', type:'dist'},
+      ux:{label:'Initial horizontal velocity', unit:'m s⁻¹', type:'vel'},
+      uy:{label:'Initial vertical velocity', unit:'m s⁻¹', type:'vel'},
+      peakT:{label:'Time to maximum height', unit:'s', type:'time'},
+      impactSpeed:{label:'Speed at impact', unit:'m s⁻¹', type:'vel'},
+      impactAngle:{label:'Angle below horizontal at impact', unit:'°', type:'angle'}
+    };
+    const CASE_PARTS = { same:['t','range','maxH','ux','uy','peakT'], height:['t','range','maxH'], horizontal:['t','range','impactSpeed','impactAngle'] };
+    const CASE_TITLES = { same:'Angled launch — same level (Earth)', height:'Angled launch from a height (Earth)', horizontal:'Horizontal launch from a height (Earth)' };
+    const QUESTION_BANK = {
+      same:[
+        {id:'same-e1', difficulty:'easy', text:"A cricketer throws a ball at 18 m s\u207B\u00B9 at 30\u00B0 above the horizontal, from ground level.", u:18,a:30,h:0},
+        {id:'same-m1', difficulty:'medium', text:"A footballer free-kicks a ball at 22 m s\u207B\u00B9 at 50\u00B0 above the horizontal.", u:22,a:50,h:0},
+        {id:'same-m2', difficulty:'medium', text:"A trick-shot basketball is launched at 14 m s\u207B\u00B9 at 65\u00B0 above the horizontal.", u:14,a:65,h:0},
+        {id:'same-h1', difficulty:'hard', text:"A long-jumper leaves the take-off board at 9.5 m s\u207B\u00B9 at 22\u00B0 above the horizontal.", u:9.5,a:22,h:0}
+      ],
+      height:[
+        {id:'height-e1', difficulty:'easy', text:"A cannon on a 20 m sea wall fires a shell at 30 m s\u207B\u00B9 at 35\u00B0 above the horizontal.", u:30,a:35,h:20},
+        {id:'height-m1', difficulty:'medium', text:"A rescue flare is launched from a 40 m cliff at 25 m s\u207B\u00B9 at 50\u00B0 above the horizontal.", u:25,a:50,h:40},
+        {id:'height-m2', difficulty:'medium', text:"A cannon on a 15 m fort wall fires at 18 m s\u207B\u00B9 at 60\u00B0 above the horizontal, into the moat below.", u:18,a:60,h:15},
+        {id:'height-h1', difficulty:'hard', text:"A catapult on a 60 m castle wall launches a rock at 35 m s\u207B\u00B9 at 28\u00B0 above the horizontal.", u:35,a:28,h:60}
+      ],
+      horizontal:[
+        {id:'horiz-e1', difficulty:'easy', text:"A ball rolls off a 5 m table at 3 m s\u207B\u00B9.", u:3,a:0,h:5},
+        {id:'horiz-m1', difficulty:'medium', text:"A delivery drone flying at a steady 25 m releases a package horizontally at 12 m s\u207B\u00B9.", u:12,a:0,h:25},
+        {id:'horiz-m2', difficulty:'medium', text:"A stunt motorcyclist launches horizontally off a 30 m ramp platform at 28 m s\u207B\u00B9.", u:28,a:0,h:30},
+        {id:'horiz-h1', difficulty:'hard', text:"A car is accidentally driven off a 55 m cliff at 20 m s\u207B\u00B9 and lands in the sea below.", u:20,a:0,h:55}
+      ]
+    };
+
+    function poolFor(motion,diff){ let list=QUESTION_BANK[motion]; if(diff && diff!=='all') list=list.filter(x=>x.difficulty===diff); return list; }
+    function refillQueue(diff){ let pool=poolFor(state.motion,diff).map(x=>x.id); for(let i=pool.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];} state.practiceQueue=pool; }
+    function nextQuestionId(){
+      let key=state.motion+'|'+state.practiceDifficulty;
+      if(state.practiceQueueKey!==key || !state.practiceQueue.length){ state.practiceQueueKey=key; refillQueue(state.practiceDifficulty); }
+      let id=state.practiceQueue.shift();
+      if(id===state.practiceLastId && state.practiceQueue.length){ state.practiceQueue.push(id); id=state.practiceQueue.shift(); }
+      state.practiceLastId=id; return id;
+    }
+    function tolFor(type,val){ if(type==='angle') return 2; if(type==='time') return Math.max(0.1,0.05*Math.abs(val)); return Math.max(0.3,0.05*Math.abs(val)); }
+
+    function workingFor(motion,key,s,d){
+      const g=s.g;
+      if(key==='ux') return `Resolve horizontally: <code>u\u2093 = u cos \u03B8 = ${s.u} \u00D7 cos ${s.a}\u00B0 = ${d.ux.toFixed(2)} m s\u207B\u00B9</code>`;
+      if(key==='uy') return `Resolve vertically: <code>u\u1D67 = u sin \u03B8 = ${s.u} \u00D7 sin ${s.a}\u00B0 = ${d.uy.toFixed(2)} m s\u207B\u00B9</code>`;
+      if(key==='peakT') return `At maximum height v = 0: <code>t = u\u1D67/g = ${d.uy.toFixed(2)}/${g} = ${d.peakT.toFixed(2)} s</code>`;
+      if(key==='t'){
+        if(motion==='same') return `Launch and landing are at the same height, so <code>t = 2u\u1D67/g = 2 \u00D7 ${d.uy.toFixed(2)}/${g} = ${d.t.toFixed(2)} s</code>`;
+        if(motion==='horizontal') return `It falls from rest vertically: <code>h = \u00BDgt\u00B2 \u2192 t = \u221A(2h/g) = \u221A(2 \u00D7 ${s.h}/${g}) = ${d.t.toFixed(2)} s</code>`;
+        return `Using <code>0 = h + u\u1D67t \u2212 \u00BDgt\u00B2</code> with h = ${s.h} m and u\u1D67 = ${d.uy.toFixed(2)} m s\u207B\u00B9 gives <code>t = ${d.t.toFixed(2)} s</code>`;
+      }
+      if(key==='range') return `Horizontal speed is constant: <code>R = u\u2093 \u00D7 t = ${d.ux.toFixed(2)} \u00D7 ${d.t.toFixed(2)} = ${d.range.toFixed(1)} m</code>`;
+      if(key==='maxH'){
+        if(motion==='same') return `At the top, v = 0: <code>H = u\u1D67\u00B2/(2g) = ${d.uy.toFixed(2)}\u00B2/(2 \u00D7 ${g}) = ${d.maxH.toFixed(1)} m</code>`;
+        return `Height gained above the launch point is <code>u\u1D67\u00B2/(2g)</code>, added to the launch height: <code>${s.h} + ${d.uy.toFixed(2)}\u00B2/(2 \u00D7 ${g}) = ${d.maxH.toFixed(1)} m</code>`;
+      }
+      if(key==='impactSpeed') return `Vertical speed gained while falling: <code>v_y = gt = ${g} \u00D7 ${d.t.toFixed(2)} = ${d.vyImpact.toFixed(2)} m s\u207B\u00B9</code>. The horizontal speed hasn't changed, so combine with Pythagoras: <code>v = \u221A(u\u2093\u00B2 + v_y\u00B2) = ${d.impactSpeed.toFixed(2)} m s\u207B\u00B9</code>`;
+      if(key==='impactAngle') return `The angle below the horizontal is <code>\u03B8 = tan\u207B\u00B9(v_y/u\u2093) = tan\u207B\u00B9(${d.vyImpact.toFixed(2)}/${d.ux.toFixed(2)}) = ${d.impactAngle.toFixed(1)}\u00B0</code>`;
+      return '';
+    }
+
+    function renderGivenChips(s){
+      let html=`<span class="given-chip">u = ${s.u} m s\u207B\u00B9</span>`;
+      if(state.motion!=='horizontal') html+=`<span class="given-chip">\u03B8 = ${s.a}\u00B0</span>`;
+      if(state.motion!=='same') html+=`<span class="given-chip">h = ${s.h} m</span>`;
+      html+=`<span class="given-chip">g = 9.8 m s\u207B\u00B2 (Earth)</span>`;
+      q('#givenChips').innerHTML=html;
+    }
+    function renderAnswerGrid(){
+      let grid=q('#answerGrid'); grid.innerHTML='';
+      state.practice.parts.forEach(p=>{
+        let row=document.createElement('div'); row.className='answer-row'; row.dataset.key=p.key;
+        row.innerHTML=`<div class="answer-label">${p.label}</div><div class="answer-input"><input type="number" step="0.01" placeholder="?"><span>${p.unit}</span></div><div class="answer-status"></div>`;
+        grid.appendChild(row);
+      });
+      grid.querySelectorAll('input').forEach(inp=>inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); if(!q('#checkBtn').disabled && !q('#checkBtn').hidden) q('#checkBtn').click(); } }));
+    }
+    function newProblem(){
+      let qid=nextQuestionId();
+      let question=QUESTION_BANK[state.motion].find(x=>x.id===qid);
+      let scenario={u:question.u,a:question.a,h:question.h,g:9.8};
+      let d=calcFrom(question.u,question.a,question.h,9.8,state.motion);
+      let parts=CASE_PARTS[state.motion].map(key=>({key,label:PART_META[key].label,unit:PART_META[key].unit,type:PART_META[key].type,correct:d[key],locked:false}));
+      state.practice={scenario,parts,attemptsLeft:3,d,question};
+      let diffLabel=question.difficulty.charAt(0).toUpperCase()+question.difficulty.slice(1);
+      q('#scenarioText').innerHTML=`<span class="diff-pill diff-${question.difficulty}">${diffLabel}</span>${question.text}`;
+      renderGivenChips(scenario);
+      renderAnswerGrid();
+      q('#attemptsLabel').textContent='3 attempts left';
+      q('#practiceFeedback').textContent='';
+      q('#checkBtn').disabled=false; q('#checkBtn').hidden=false; q('#checkBtn').textContent='Check my answers';
+      q('#nextQuestionBtn').hidden=true;
+      q('#simTitle').textContent=CASE_TITLES[state.motion];
+      q('#simSub').textContent='Watch the flight, then work out the numbers yourself.';
+      draw(0); playAnimation();
+    }
+    function toggleReveal(row){ let rev=row.querySelector('.answer-reveal'); if(rev) rev.classList.toggle('show'); }
+    function finishPractice(){ q('#checkBtn').hidden=true; q('#nextQuestionBtn').hidden=false; state.practice.parts.forEach(p=>{ let row=q(`.answer-row[data-key="${p.key}"]`); row.querySelector('input').disabled=true; }); }
+    function revealRemaining(){
+      state.practice.parts.forEach(p=>{
+        if(p.locked) return;
+        let row=q(`.answer-row[data-key="${p.key}"]`);
+        row.classList.remove('incorrect'); row.classList.add('revealed');
+        let val=p.type==='angle'?p.correct.toFixed(1):p.correct.toFixed(2);
+        let reveal=document.createElement('div'); reveal.className='answer-reveal show';
+        reveal.innerHTML=`<b>Answer: ${val} ${p.unit}</b><br>${workingFor(state.motion,p.key,state.practice.scenario,state.practice.d)}`;
+        row.appendChild(reveal);
+        let status=row.querySelector('.answer-status'); status.textContent='ℹ️'; status.onclick=()=>toggleReveal(row);
+      });
+    }
+    function checkAnswers(){
+      let allCorrect=true;
+      state.practice.parts.forEach(p=>{
+        if(p.locked) return;
+        let row=q(`.answer-row[data-key="${p.key}"]`);
+        let input=row.querySelector('input');
+        let val=parseFloat(input.value);
+        let tol=tolFor(p.type,p.correct);
+        if(!isNaN(val) && Math.abs(val-p.correct)<=tol){
+          p.locked=true; row.classList.add('correct'); row.classList.remove('incorrect'); input.disabled=true;
+          let status=row.querySelector('.answer-status'); status.textContent='✓';
+          let reveal=document.createElement('div'); reveal.className='answer-reveal'; reveal.innerHTML=`<b>Nice — that's right.</b><br>${workingFor(state.motion,p.key,state.practice.scenario,state.practice.d)}`;
+          row.appendChild(reveal); status.style.cursor='pointer'; status.onclick=()=>toggleReveal(row);
+        } else {
+          allCorrect=false; row.classList.add('incorrect');
+          row.querySelector('.answer-status').textContent='✗';
+        }
+      });
+      if(allCorrect){
+        q('#practiceFeedback').textContent='All correct — nice work! 🎉';
+        finishPractice();
+      } else {
+        state.practice.attemptsLeft--;
+        if(state.practice.attemptsLeft<=0){
+          revealRemaining();
+          q('#practiceFeedback').textContent="Here are the full worked solutions for the ones you didn't get.";
+          finishPractice();
+        } else {
+          q('#attemptsLabel').textContent=`${state.practice.attemptsLeft} attempt${state.practice.attemptsLeft>1?'s':''} left`;
+          q('#practiceFeedback').textContent='Some answers need another look — keep trying!';
+        }
+      }
+    }
+
+    /* ---------- mode + case switching ---------- */
+    function setMode(m){
+      state.mode=m;
+      document.querySelectorAll('#modeToggle button').forEach(b=>b.classList.toggle('active',b.dataset.mode===m));
+      q('#exploreControls').hidden = m!=='explore';
+      q('#practiceControls').hidden = m!=='practice';
+      q('#exploreResults').hidden = m!=='explore';
+      q('#practiceResults').hidden = m!=='practice';
+      q('#modeNote').textContent = m==='explore' ? 'Adjust the values yourself and see every result instantly.' : "Values are given by the question — work out the results and check them below.";
+      q('#simNote').style.display = m==='explore' ? '' : 'none';
+      if(m==='explore'){ output(); } else { newProblem(); }
+    }
+    function showChooser(){ q('#home').hidden=true; q('#lab').hidden=true; q('#chooseScreen').hidden=false; window.scrollTo({top:0,behavior:'smooth'}); }
+    function chooseCase(choice){
+      state.motion=choice;
+      let names={same:'Angled launch — same ground level',height:'Angled launch from a height',horizontal:'Horizontal launch from a height'};
+      q('#selectedCase').textContent=names[state.motion];
+      q('#caseDiagram').innerHTML=document.querySelector(`.case-card[data-case="${state.motion}"] .diagram`).outerHTML;
+      q('#angleBox').style.display=state.motion==='horizontal'?'none':'';
+      q('#angleLabel').style.display=state.motion==='horizontal'?'none':'';
+      let showH=state.motion!=='same';
+      q('#heightBox').style.display=showH?'':'none';
+      q('#heightLabel').style.display=showH?'':'none';
+      q('#height').value=showH?(q('#height').value||10):0;
+      q('#prompt').textContent=state.motion==='horizontal'?'What determines the time of flight: horizontal speed or initial height?':'At maximum height, what happens to the vertical component of velocity? Does the horizontal component change?';
+      q('#home').hidden=true; q('#chooseScreen').hidden=true; q('#lab').hidden=false;
+      if(state.pendingPracticeIntent){ state.pendingPracticeIntent=false; setMode('practice'); }
+      else if(state.mode==='practice'){ newProblem(); }
+      else { output(); }
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    /* ---------- wiring ---------- */
+    q('#run').onclick=()=>{ output(); playAnimation(); };
+    q('#workToggle').onclick=()=>{q('#formula').classList.toggle('show');q('#workToggle span').textContent=q('#formula').classList.contains('show')?'⌃':'⌄'};
+    q('#begin').onclick=showChooser;
+    q('#jumpPractice').onclick=()=>{ state.pendingPracticeIntent=true; showChooser(); };
+    document.querySelectorAll('.case-card').forEach(b=>b.onclick=()=>chooseCase(b.dataset.case));
+    document.querySelectorAll('.case-quicklink').forEach(b=>b.onclick=()=>chooseCase(b.dataset.case));
+    q('#changeCase').onclick=showChooser;
+    document.querySelectorAll('.metric').forEach(card=>card.onclick=()=>explain(card.dataset.result));
+    q('#planet').onchange=()=>{let o=q('#planet').selectedOptions[0];q('#planetText').textContent=o.text;q('#planetIcon').textContent=o.dataset.icon;q('#gravityText').textContent=`g = ${(+o.value).toFixed(2)} m s⁻²`;output()};
+    document.querySelectorAll('#exploreControls input').forEach(x=>x.oninput=output);
+    document.querySelectorAll('#modeToggle button').forEach(btn=>btn.onclick=()=>setMode(btn.dataset.mode));
+    document.querySelectorAll('#difficultyToggle button').forEach(btn=>btn.onclick=()=>{
+      document.querySelectorAll('#difficultyToggle button').forEach(b=>b.classList.toggle('active',b===btn));
+      state.practiceDifficulty=btn.dataset.diff; state.practiceQueueKey=null; newProblem();
+    });
+    q('#newQuestionBtn').onclick=newProblem;
+    q('#nextQuestionBtn').onclick=newProblem;
+    q('#replayBtn').onclick=playAnimation;
+    q('#checkBtn').onclick=checkAnswers;
+    window.onresize=()=>draw(0);
+    output();
+  </script>
+</body></html>
